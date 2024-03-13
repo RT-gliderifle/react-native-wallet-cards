@@ -15,7 +15,9 @@ export default class CardsWallet extends Component {
         showCardShadow: PropTypes.bool,
         cardSeparation: PropTypes.number,
         cardEasing: PropTypes.string,
-        easingTime: PropTypes.number
+        easingTime: PropTypes.number,
+        autoClose: PropTypes.bool,
+        cardOpenOffset: PropTypes.number,
     };
 
     static defaultProps = {
@@ -27,7 +29,9 @@ export default class CardsWallet extends Component {
         showCardShadow: true,
         cardSeparation: 50,
         cardEasing: 'ease-in-out',
-        easingTime: 300
+        easingTime: 300,
+        autoClose: false,
+        cardOpenOffset: 20,
     };
 
     state = {
@@ -38,6 +42,7 @@ export default class CardsWallet extends Component {
         super(props);
         this.setProps();
         this.cards = this.renderCards();
+        this.selectedIdx = null;
     }
     shouldComponentUpdate(nextProps) {
         if (nextProps.data === this.props.data) return false;
@@ -82,9 +87,15 @@ export default class CardsWallet extends Component {
         );
     }
 
-    animateCard(index) {
+    animateCard(index) {        
+        if (this.props.autoClose && this.selectedIdx !== null  && this.selectedIdx !== index && this.isCardDisplay[this.selectedIdx]) {
+            this.animateCard(this.selectedIdx);
+        }
+
+        this.selectedIdx = index;
+
         let marginBottomStart = 0;
-        let marginBottomEnd = this.props.cardHeight - 60;
+        let marginBottomEnd = this.props.cardHeight - (this.props.cardSeparation - this.props.cardOpenOffset);
         if (index === this.props.data.length - 1) {
             marginBottomStart = 0;
             marginBottomEnd = 0;
@@ -109,6 +120,7 @@ export default class CardsWallet extends Component {
             this.props.easingTime,
             this.props.cardEasing
         );
+        
         this.forceUpdate();
     }
 
